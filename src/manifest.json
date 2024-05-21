@@ -1,0 +1,11 @@
+{  
+    "name": "muss.mal",
+    "short_name": "muss.mal",
+    "description": "Eine Webapp, die dir die nächsten öffentlichen Toiletten in der Nähe zeigt.",
+    "theme_color": "#da1d50",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/app.html"
+}

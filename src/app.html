@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="manifest.json" />
+</head>
+
+<template id="card_node">
+  <details class="card is-full-width">
+    <summary id="name"></summary>
+    <p id="tags">Diese Toilette ist rollstuhlgerecht.</p>
+    <a class="button primary" id="map" href="/">Auf OpenStreetMaps einsehen</a>
+  </details>
+</template>
+
+<h1 class="is-full-width text-center">muss.mal</h1>
+  <div id="list_nodes">
+    <!-- the fetched data is cloned into here -->
+  </div>
+
+  <nav class="tabs is-full is-full-width card" id="bar">
+	<a class="button icon-only" href="/info">
+		<img src="assets/information-line.svg" alt="Information" />
+	</a>
+	<a class="button icon-only" href="/">
+		<img src="assets/map-pin-line.svg" alt="Karte" />
+	</a>
+    </nav>
+
+<script>
+    // register the service worker for PWA functionality
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").then(
+        (error) => {
+          console.error(`🪠 Fehler (service worker): ${error}`);
+        },
+      );
+    } else {
+      console.error("🪠 Der Browser unterstützt keine Service Worker.");
+    }
+    // --
+    let nodes = [0];
+    const overpass_query = `https://overpass-api.de/api/interpreter?data=
+    [out:json];
+    node
+        ["amenity"="toilets"]
+        (52.516351441442,13.398513793945,52.525464801709,13.423147201538);
+    out;`;
+
+    // fetch the OpenStreetMaps data via a GET request to overpass-api.de
+    async function overpass_fetch() {
+      let response = await fetch(overpass_query, {
+        headers: {
+          'User-Agent': 'muss.mal v.01'
+        }
+      });
+      let data = await response.json().then(res => refresh_data(res));
+    }
+    // refresh elements to fetched OSM data by adding child elements similar to the card template above
+    function refresh_data(data) {
+      console.log(data);
+      // check whether the <template> element is supported by the browser
+      if ("content" in document.createElement("template")) {
+        const insert_list = document.getElementById("list_nodes");
+        const template = document.getElementById("card_node");
+
+        // iterate through all fetched OSM nodes
+        data.elements.forEach(function (node) {
+
+          // clone template and insert each element into new element
+          let clone = template.content.cloneNode(true);
+
+          if (node.tags.wheelchair == "yes") {
+            clone.getElementById("tags").textContent = "#rollstuhl"
+          }
+
+          clone.getElementById("name").textContent = node.id;
+          clone.getElementById("map").href = "https://www.openstreetmap.org/node/" + node.id;
+
+          insert_list.appendChild(clone);
+        })
+      } else {
+        alert("🪠 Diese App benötigt eine Technologie, die dein Gerät icht nutzen kann. Bitte benutze einen anderen Browser :)")
+      }
+    }
+    overpass_fetch();
+
+    
+</script>
+</html>
