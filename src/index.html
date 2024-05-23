@@ -32,11 +32,7 @@
 <script>
     // register the service worker for PWA functionality
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").then(
-        (error) => {
-          console.error(`🪠 Fehler (service worker): ${error}`);
-        },
-      );
+      navigator.serviceWorker.register("sw.js");
     } else {
       console.error("🪠 Der Browser unterstützt keine Service Worker.");
     }
@@ -82,7 +78,7 @@
           insert_list.appendChild(clone);
         })
       } else {
-        alert("🪠 Diese App benötigt eine Technologie, die dein Gerät icht nutzen kann. Bitte benutze einen anderen Browser :)")
+        alert("🪠 Diese App benötigt template-Elemente, die dein Gerät nicht nutzen kann. Bitte versuche es erneut mit einem anderen Browser :)")
       }
     }
     overpass_fetch();
