@@ -1,4 +1,6 @@
-const name_cache = "muss.mal.v1";
+// this service worker is from the tutorial from https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Tutorials/CycleTracker/
+// -> I'll try to rewrite it asap
+const name_cache = "muss.mal.v1.1";
 const static = [
   "/",
   "/app.html",
@@ -36,19 +38,28 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// on fetching use the cached documents instead of fetching them through network
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    (async () => {
-      const cache = await caches.open(name_cache);
-      const cachedResponse = await cache.match(event.request.url);
+// on fetching use the cached documents instead of fetching them through network (a.k.a "cache first" strategy)
+async function cacheFirst(request) {
+  const cachedResponse = await caches.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
 
-      // if the requested resource has already been cached, use the cached one
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      // if not, return status 404
-      return new Response(null, { status: 404 });
-    })(),
-  );
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(name_cache);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    return Response.error();
+  }
+}
+
+self.addEventListener("fetch", (event) => {
+  let url = new URL(event.request.url);
+  if (static.includes(url.pathname)) {
+    event.respondWith(cacheFirst(event.request));
+  }
 });
