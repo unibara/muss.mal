@@ -31,3 +31,7 @@ img {
 div.container {
   position: relative;
 }
+
+#center {
+	text-align: center;
+}

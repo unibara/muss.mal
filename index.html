@@ -4,13 +4,15 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- /muss.mal/ -> github pages (https://unibara.github.io/muss.mal/) -->
+    <base href="/muss.mal/"/>
     <link rel="manifest" href="manifest.json" />
 </head>
 
 <template id="card_node">
   <details class="card is-full-width">
     <summary id="name"></summary>
-    <p id="tags">Diese Toilette ist rollstuhlgerecht.</p>
+    <p id="tags"></p>
     <a class="button primary" id="map" href="/">Auf OpenStreetMaps einsehen</a>
   </details>
 </template>
@@ -19,12 +21,11 @@
   <div id="list_nodes">
     <!-- the fetched data is cloned into here -->
   </div>
-
   <nav class="tabs is-full is-full-width card" id="bar">
-	<a class="button icon-only" href="/info">
+	<a class="button icon-only" href="info.html">
 		<img src="assets/information-line.svg" alt="Information" />
 	</a>
-	<a class="button icon-only" href="/">
+	<a class="button icon-only" href="./.">
 		<img src="assets/map-pin-line.svg" alt="Karte" />
 	</a>
     </nav>
@@ -37,6 +38,8 @@
       console.error("🪠 Der Browser unterstützt keine Service Worker.");
     }
     // --
+
+    // fetch the OpenStreetMaps data via a GET request to overpass-api.de
     let nodes = [0];
     const overpass_query = `https://overpass-api.de/api/interpreter?data=
     [out:json];
@@ -45,7 +48,6 @@
         (52.516351441442,13.398513793945,52.525464801709,13.423147201538);
     out;`;
 
-    // fetch the OpenStreetMaps data via a GET request to overpass-api.de
     async function overpass_fetch() {
       let response = await fetch(overpass_query, {
         headers: {
@@ -54,6 +56,9 @@
       });
       let data = await response.json().then(res => refresh_data(res));
     }
+    // --
+
+    // templating
     // refresh elements to fetched OSM data by adding child elements similar to the card template above
     function refresh_data(data) {
       console.log(data);
